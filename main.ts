@@ -11,8 +11,9 @@ const DEFAULT_SETTINGS: ClipboardFormattingSettings = {
 	maxTextSize: 5000, // Default limit of 5000 characters
 	customReplacements: [
 		{ "from": "[Intermediate]", "to": "[Basic]" },
-		{ "from": "[Advanced]", "to": "[Basic]" }
-	] // Default to an array with two example replacements
+		{ "from": "[Advanced]", "to": "[Basic]" },
+		{ "from": "# Note on ", "to": "# " },
+	] // Default to an array with some example replacements
 };
 
 export default class ClipboardFormattingPlugin extends Plugin {
@@ -51,10 +52,10 @@ export default class ClipboardFormattingPlugin extends Plugin {
 	private formatKaTeX(text: string): string {
 		// Replace KaTeX patterns with MathJax equivalents
 		return text
-			.replace(/\\\( (.*?) \\\)/g, '\$$1\$')
-			.replace(/\\\[ (.*?) \\\]/g, '\$\$$1\$\$')
-			.replace(/\\\((.*?)\\\)/g, '\$$1\$')
-			.replace(/\\\[(.*?)\\\]/g, '\$\$$1\$\$');
+			.replace(/\\\( (.*?) \\\)/g, (match, p1) => `$${p1}$`)       // Replaces \( ... \) with $...$
+			.replace(/\\\[ (.*?) \\\]/g, (match, p1) => `$$${p1}$$`)    // Replaces \[ ... \] with $$...$$
+			.replace(/\\\((.*?)\\\)/g, (match, p1) => `$${p1}$`)       // Replaces \(...\) with $...$
+			.replace(/\\\[(.*?)\\\]/g, (match, p1) => `$$${p1}$$`);    // Replaces \[...\] with $$...$$
 	}
 
 	private formatText(text: string): string {
