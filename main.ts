@@ -13,6 +13,8 @@ const DEFAULT_SETTINGS: ClipboardFormattingSettings = {
 		{ "from": "[Intermediate]", "to": "[Basic]" },
 		{ "from": "[Advanced]", "to": "[Basic]" },
 		{ "from": "# Note on ", "to": "# " },
+		{ "from": "behavior", "to": "behaviour" },
+		{ "from": "`", "to": "" },
 	] // Default to an array with some example replacements
 };
 
@@ -38,11 +40,14 @@ export default class ClipboardFormattingPlugin extends Plugin {
 			}
 
 			const formattedText = this.formatText(clipboardText);
-			const shouldPaste = this.settings.confirmBeforePaste ? await this.showConfirmationDialog() : true;
+			const shouldPasteFormatted = this.settings.confirmBeforePaste ? await this.showConfirmationDialog() : true;
 
-			if (shouldPaste) {
+			if (shouldPasteFormatted) {
 				// Insert the formatted text into the editor
 				editor.replaceSelection(formattedText);
+			}
+			else {
+				editor.replaceSelection(clipboardText)
 			}
 		}, true)); // 'true' makes this a capturing listener
 
@@ -53,9 +58,9 @@ export default class ClipboardFormattingPlugin extends Plugin {
 		// Replace KaTeX patterns with MathJax equivalents
 		return text
 			.replace(/\\\( (.*?) \\\)/g, (match, p1) => `$${p1}$`)       // Replaces \( ... \) with $...$
-			.replace(/\\\[ (.*?) \\\]/g, (match, p1) => `$$${p1}$$`)    // Replaces \[ ... \] with $$...$$
+			.replace(/\\\[ (.*?) \\\]/gs, (match, p1) => `$$${p1}$$`)    // Replaces \[ ... \] with $$...$$
 			.replace(/\\\((.*?)\\\)/g, (match, p1) => `$${p1}$`)       // Replaces \(...\) with $...$
-			.replace(/\\\[(.*?)\\\]/g, (match, p1) => `$$${p1}$$`);    // Replaces \[...\] with $$...$$
+			.replace(/\\\[(.*?)\\\]/gs, (match, p1) => `$$${p1}$$`);    // Replaces \[...\] with $$...$$
 	}
 
 	private formatText(text: string): string {
